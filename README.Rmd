@@ -1,0 +1,69 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/"
+)
+options(digits = 4, width = 120)
+```
+
+# datadict: Data dictionary tools for the OCA data sharing platform
+<!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+<!-- badges: end -->
+
+### Installation
+
+Install from GitHub with:
+
+```{r, eval=FALSE}
+# install.packages("remotes")
+remotes::install_github("epicentre-msf/datadict")
+```
+
+
+### Example usage
+
+#### Generate data dictionary from ODK template
+
+```{r}
+library(datadict)
+library(readxl)
+
+# path to example ODK template (a WHO mortality survey)
+path_data <- system.file("extdata", package = "datadict")
+path_odk_template <- file.path(path_data, "WHOVA2016_v1_5_3_ODK.xlsx")
+
+# read 'survey' sheet and 'choices' sheet
+odk_survey <- readxl::read_xlsx(path_odk_template, sheet = "survey")
+odk_choices <- readxl::read_xlsx(path_odk_template, sheet = "choices")
+
+# derive OCA-style data dictionary
+dict <- dict_from_odk(odk_survey, odk_choices)
+
+# examine first few rows/cols
+dict[1:5,1:5]
+```
+
+#### Generate data dictionary from REDCap template
+
+```{r}
+# path to example REDCap template
+path_data <- system.file("extdata", package = "datadict")
+path_redcap_dict <- file.path(path_data, "dict_redcap_raw.csv")
+
+# read dictionary
+redcap_dict <- read.csv(path_redcap_dict)
+
+# derive OCA-style data dictionary
+dict <- dict_from_redcap(redcap_dict)
+
+# examine first few rows/cols
+dict[1:5,1:5]
+```

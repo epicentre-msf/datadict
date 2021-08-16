@@ -1,0 +1,39 @@
+field_name,form_name,field_type,field_label,choices,field_note,validation,validation_min,validation_max,identifier,branching_logic,required_field,field_annotation,field_name_orig,field_label_orig
+record_id,enrolment,text,Study ID,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+enr_form_dt,enrolment,text,Date and time of form completion,NA,NA,datetime_seconds_ymd,NA,NA,NA,NA,y,NA,NA,NA
+enr_first_name,enrolment,text,First Name,NA,NA,NA,NA,NA,y,NA,y,NA,NA,NA
+enr_last_name,enrolment,text,Last Name,NA,NA,NA,NA,NA,y,NA,y,NA,NA,NA
+enr_over_18,enrolment,yesno,Is the participant 18 years or older?,NA,NA,NA,NA,NA,NA,NA,y,NA,NA,NA
+enr_age,enrolment,text,Age,NA,In years,integer,0,125,NA,[enr_over_18] = '1',y,NA,NA,NA
+enr_gender,enrolment,radio,Gender,"0, Female | 1, Male | 2, Other | 3, Prefer not to say",NA,NA,NA,NA,NA,[enr_over_18]='1',y,NA,NA,NA
+enr_telephone,enrolment,text,Participant's telephone number,NA,NA,NA,NA,NA,NA,[enr_over_18]='1',y,NA,NA,NA
+enr_signed,enrolment,yesno,Signed consent forms?,NA,NA,NA,NA,NA,NA,[enr_over_18]='1',y,NA,NA,NA
+enr_signed_date,enrolment,text,Date of signing of consent forms,NA,NA,date_dmy,NA,NA,NA,[enr_signed]='1',y,NA,NA,NA
+elig_form_dt,eligibility,text,Date and time of form completion,NA,NA,datetime_seconds_ymd,NA,NA,NA,NA,y,NA,NA,NA
+elig_preg,eligibility,dropdown,Is the participant currently pregnant?,"1, Yes | 2, No | 88, Unknown",NA,NA,NA,NA,NA,[enr_gender] <> '2',y,NA,NA,NA
+elig_preg_trim,eligibility,dropdown,Trimester of pregnancy,"1, 1 | 2, 2 | 3, 3 | 88, Unknown",NA,NA,NA,NA,NA,[elig_preg_trim]='1',y,NA,NA,NA
+elig_fever,eligibility,yesno,Does the participant currently have a fever?,NA,NA,NA,NA,NA,NA,NA,y,NA,NA,NA
+elig_medical___1,eligibility,checkbox,Does the participant have any significant medical history? Check all that apply: (choice=None),"0, Unchecked | 1, Checked",NA,NA,NA,NA,NA,NA,y,NA,elig_medical,Does the participant have any significant medical history? Check all that apply:
+elig_medical___2,eligibility,checkbox,Does the participant have any significant medical history? Check all that apply: (choice=Allergy to vaccines),"0, Unchecked | 1, Checked",NA,NA,NA,NA,NA,NA,y,NA,elig_medical,Does the participant have any significant medical history? Check all that apply:
+elig_medical___3,eligibility,checkbox,Does the participant have any significant medical history? Check all that apply: (choice=History of anaphylaxis),"0, Unchecked | 1, Checked",NA,NA,NA,NA,NA,NA,y,NA,elig_medical,Does the participant have any significant medical history? Check all that apply:
+elig_medical___4,eligibility,checkbox,Does the participant have any significant medical history? Check all that apply: (choice=Psychiatric disorders),"0, Unchecked | 1, Checked",NA,NA,NA,NA,NA,NA,y,NA,elig_medical,Does the participant have any significant medical history? Check all that apply:
+elig_medical___5,eligibility,checkbox,Does the participant have any significant medical history? Check all that apply: (choice=Metabolic disturbances),"0, Unchecked | 1, Checked",NA,NA,NA,NA,NA,NA,y,NA,elig_medical,Does the participant have any significant medical history? Check all that apply:
+elig_medical___6,eligibility,checkbox,Does the participant have any significant medical history? Check all that apply: (choice=Drug abuse),"0, Unchecked | 1, Checked",NA,NA,NA,NA,NA,NA,y,NA,elig_medical,Does the participant have any significant medical history? Check all that apply:
+elig_medical___7,eligibility,checkbox,Does the participant have any significant medical history? Check all that apply: (choice=HIV),"0, Unchecked | 1, Checked",NA,NA,NA,NA,NA,NA,y,NA,elig_medical,Does the participant have any significant medical history? Check all that apply:
+elig_medical___88,eligibility,checkbox,Does the participant have any significant medical history? Check all that apply: (choice=Other),"0, Unchecked | 1, Checked",NA,NA,NA,NA,NA,NA,y,NA,elig_medical,Does the participant have any significant medical history? Check all that apply:
+elig_medical_other,eligibility,text,"If other significant medical history, please explain:",NA,NA,NA,NA,NA,NA,[elig_medical(88)] = '1',NA,NA,NA,NA
+follow_form_dt,followup,text,Date and time of form completion,NA,NA,datetime_seconds_ymd,NA,NA,NA,NA,y,@TODAY,NA,NA
+follow_date,followup,text,Date of followup visit,NA,NA,date_dmy,NA,NA,NA,NA,y,NA,NA,NA
+follow_coher1,followup,descriptive,Date of visit should be after enrolment date,NA,NA,NA,NA,NA,NA,[follow_date] < [enrollment_arm_1][enr_signed_date],NA,NA,NA,NA
+follow_visit_type,followup,radio,Visit type,"1, Scheduled visit | 2, Unscheduled: Participant visited site | 3, Unscheduled: Participant phoned site",NA,NA,NA,NA,NA,NA,y,NA,NA,NA
+follow_number,followup,text,Scheduled visit  number,NA,NA,integer,1,12,NA,[follow_visit_type]='1',y,NA,NA,NA
+follow_contact_made,followup,yesno,Was contact made,NA,NA,NA,NA,NA,NA,[follow_visit_type]='1',y,NA,NA,NA
+follow_sae,followup,yesno,Did a serious adverse event occur?,NA,NA,NA,NA,NA,NA,([follow_visit_type]='2' or [follow_visit_type]='3') or ([follow_visit_type]='1' and [follow_contact_made]='1'),y,NA,NA,NA
+follow_sae_which___1,followup,checkbox,Which serious adverse event occurred? (choice=Participant was hospitalized),"0, Unchecked | 1, Checked",NA,NA,NA,NA,NA,[follow_sae]='1',y,NA,follow_sae_which,Which serious adverse event occurred?
+follow_sae_which___2,followup,checkbox,Which serious adverse event occurred? (choice=Participant died),"0, Unchecked | 1, Checked",NA,NA,NA,NA,NA,[follow_sae]='1',y,NA,follow_sae_which,Which serious adverse event occurred?
+follow_sae_which___88,followup,checkbox,Which serious adverse event occurred? (choice=Other),"0, Unchecked | 1, Checked",NA,NA,NA,NA,NA,[follow_sae]='1',y,NA,follow_sae_which,Which serious adverse event occurred?
+follow_sae_which_other,followup,text,"If selected 'Other' above, describe the serious adverse event",NA,NA,NA,NA,NA,NA,[follow_sae]='1' and [follow_sae_which(88)]='1',y,NA,NA,NA
+followup_preg,followup,yesno,Was a pregnancy notified?,NA,NA,NA,NA,NA,NA,([follow_visit_type]='2' or [follow_visit_type]='3') or ([follow_visit_type]='1' and [follow_contact_made]='1'),y,NA,NA,NA
+date1,followup,text,date1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+date2,followup,text,date2,NA,NA,date_ymd,NA,NA,NA,NA,NA,NA,NA,NA
+test,followup,calc,test,"datediff([date2], ""today"", ""d"")",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA

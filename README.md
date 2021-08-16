@@ -54,7 +54,7 @@ dict[1:5,1:5]
 ``` r
 # path to example REDCap template
 path_data <- system.file("extdata", package = "datadict")
-path_redcap_dict <- file.path(path_data, "dict_redcap_raw.csv")
+path_redcap_dict <- file.path(path_data, "REDCapDataDictionaryDemo.csv")
 
 # read dictionary
 redcap_dict <- read.csv(path_redcap_dict)
@@ -65,11 +65,11 @@ dict <- dict_from_redcap(redcap_dict)
 # examine first few rows/cols
 dict[1:5,1:5]
 #> # A tibble: 5 × 5
-#>   variable_name  form_or_group short_label                           type       choices       
-#>   <chr>          <chr>         <chr>                                 <chr>      <chr>         
-#> 1 record_id      enrolment     Study ID                              Free text  <NA>          
-#> 2 enr_form_dt    enrolment     Date and time of form completion      Date       <NA>          
-#> 3 enr_first_name enrolment     First Name                            Free text  <NA>          
-#> 4 enr_last_name  enrolment     Last Name                             Free text  <NA>          
-#> 5 enr_over_18    enrolment     Is the participant 18 years or older? Coded list 0, No | 1, Yes
+#>   variable_name form_or_group short_label                 type      choices
+#>   <chr>         <chr>         <chr>                       <chr>     <chr>  
+#> 1 study_id      demographics  Study ID                    Free text <NA>   
+#> 2 date_enrolled demographics  Date subject signed consent Date      <NA>   
+#> 3 first_name    demographics  First Name                  Free text <NA>   
+#> 4 last_name     demographics  Last Name                   Free text <NA>   
+#> 5 address       demographics  Street, City, State, ZIP    Free text <NA>
 ```

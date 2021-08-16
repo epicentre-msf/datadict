@@ -56,7 +56,7 @@ dict[1:5,1:5]
 ```{r}
 # path to example REDCap template
 path_data <- system.file("extdata", package = "datadict")
-path_redcap_dict <- file.path(path_data, "dict_redcap_raw.csv")
+path_redcap_dict <- file.path(path_data, "REDCapDataDictionaryDemo.csv")
 
 # read dictionary
 redcap_dict <- read.csv(path_redcap_dict)

@@ -27,10 +27,13 @@ Install from GitHub with:
 remotes::install_github("epicentre-msf/datadict")
 ```
 
-
 ### Example usage
 
 #### Generate data dictionary from ODK template
+
+The `dict_from_odk()` function can be used to generate an OCA-style data
+dictionary from an ODK template (both the 'survey' and 'options' sheets of the
+ODK template are required as inputs).
 
 ```{r}
 library(datadict)
@@ -48,10 +51,15 @@ odk_choices <- readxl::read_xlsx(path_odk_template, sheet = "choices")
 dict <- dict_from_odk(odk_survey, odk_choices)
 
 # examine first few rows/cols
-dict[1:5,1:5]
+dict[1:5,1:4]
 ```
 
 #### Generate data dictionary from REDCap template
+
+The `dict_from_redcap()` function can be used to generate an OCA-style data
+dictionary from a REDCap data dictionary. The input dictionary can be exported
+directly from a REDCap project website or fetched via the API using e.g. the R
+package [redcap](https://github.com/epicentre-msf/redcap).
 
 ```{r}
 # path to example REDCap template
@@ -67,3 +75,35 @@ dict <- dict_from_redcap(redcap_dict)
 # examine first few rows/cols
 dict[1:5,1:5]
 ```
+
+
+#### Generate data dictionary template from a dataset
+
+The `dict_from_data()` function can be used to generate a template OCA-style
+data dictionary (which may require further processing) from a dataset. Data types
+are based on the class of each column within in the input dataset, e.g.:
+
+| Column class in R | Dictionary data type |
+| ------------------|----------------------|
+| Date | Date |
+| POSIX | Datetime |
+| integer | Numeric |
+| numeric | Numeric |
+| factor | Coded list |
+| character | Coded list or Free text (see argument `factor_threshold`) |
+
+```{r}
+# path to example dataset
+path_data <- system.file("extdata", package = "datadict")
+path_linelist <- file.path(path_data, "linelist_cleaned.xlsx")
+
+# read data
+dat <- readxl::read_xlsx(path_linelist)
+
+# derive OCA-style data dictionary template
+dict <- dict_from_data(dat)
+
+# examine first few rows/cols
+dict[1:7,1:5]
+```
+

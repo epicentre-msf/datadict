@@ -23,7 +23,8 @@
 #' dict_from_odk(odk_survey, odk_choices)
 #'
 #' @importFrom stats setNames
-#' @importFrom dplyr `%>%` mutate filter select group_by summarize everything as_tibble
+#' @importFrom dplyr `%>%` mutate filter select group_by summarize everything
+#'   as_tibble add_row
 #' @importFrom rlang .data
 #' @importFrom janitor make_clean_names remove_empty
 #' @export dict_from_odk
@@ -50,10 +51,12 @@ dict_from_odk <- function(survey,
   choices_prep <- choices_clean %>%
     dplyr::mutate(name_lab = paste(.data$name, .data[[col_labels]], sep = ", ")) %>%
     dplyr::group_by(.data$list_name) %>%
-    dplyr::summarize(choices = paste(.data$name_lab, collapse = " | "), .groups = "drop")
+    dplyr::summarize(choices = paste(.data$name_lab, collapse = " | "), .groups = "drop") %>%
+    dplyr::add_row(list_name = "checkbox", choices = c("0, Unchecked | 1, Checked"))
 
   # standardize field types
   survey_types <- survey_clean %>%
+    expand_multichoice(., choices_prep, col_labels) %>%
     dplyr::mutate(
       list_name = stringr::str_extract(.data$type, stringr::regex("(?<=select_(one|multiple) ).*")),
       type = dplyr::case_when(
@@ -100,3 +103,39 @@ dict_from_odk <- function(survey,
   # return
   survey_out
 }
+
+
+
+
+#' @noRd
+#' @importFrom dplyr `%>%` arrange mutate filter select bind_rows left_join
+#' @importFrom rlang .data ensym `!!` `:=`
+#' @importFrom tidyr unnest
+#' @importFrom purrr map map_chr
+#' @importFrom stringr str_extract regex
+expand_multichoice <- function(x, choices, col_labels) {
+
+  x$rowid <- seq_len(nrow(x))
+
+  x_multi <- x %>%
+    dplyr::mutate(list_name = stringr::str_extract(.data$type, stringr::regex("(?<=select_(one|multiple) ).*"))) %>%
+    dplyr::filter(grepl("^select_multiple", .data$type)) %>%
+    dplyr::left_join(choices, by = "list_name") %>%
+    dplyr::mutate(choices = purrr::map(.data$choices, split_choices)) %>%
+    tidyr::unnest("choices") %>%
+    dplyr::mutate(
+      checkbox_value = purrr::map_chr(.data$choices, ~ strsplit(.x, ", *")[[1]][1]),
+      checkbox_label = purrr::map_chr(.data$choices, ~ strsplit(.x, ", *")[[1]][2]),
+      name = paste(.data$name, .data$checkbox_value, sep = "___"), ### not sure of actual ODK format, no examples
+      !!col_labels := paste(!!ensym(col_labels), .data$checkbox_label, sep = "/"),
+      type = "select_multiple checkbox"
+    )
+
+  x %>%
+    dplyr::filter(!grepl("^select_multiple", .data$type)) %>%
+    dplyr::bind_rows(x_multi) %>%
+    dplyr::arrange(.data$rowid) %>%
+    dplyr::select(-c("rowid", "checkbox_value", "checkbox_label", "choices"))
+}
+
+

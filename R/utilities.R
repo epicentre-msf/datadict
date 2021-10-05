@@ -1,4 +1,7 @@
 
+utils::globalVariables(c("."))
+
+
 #' Standardize column names
 #' @noRd
 #' @importFrom stringr str_to_sentence

@@ -17,3 +17,14 @@ empty_to_na <- function(x) {
   x
 }
 
+
+#' @noRd
+paste_collapse <- function(x, quote = TRUE, collapse = ", ") {
+  if (quote) {
+    out <- paste(dQuote(x, q = FALSE), collapse = collapse)
+  } else {
+    out <- paste(x, collapse = collapse)
+  }
+  return(out)
+}
+

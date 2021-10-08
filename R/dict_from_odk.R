@@ -4,10 +4,10 @@
 #'   template
 #' @param choices A data.frame reflecting the 'choices' sheet within an ODK
 #'   template
-#' @param column_labels (Optional) Name of the column in sheet 'survey' giving
-#'   variable labels, e.g. "label::English". Defaults to `NULL` in which case
-#'   the first column starting with prefix "label::" is used for the label
-#'   column.
+#' @param col_labels (Optional) Name of the column found in both sheets 'survey'
+#'   and 'choices' giving variable labels, e.g. "label::English". Defaults to
+#'   `NULL` in which case the first column starting with prefix "label" is used
+#'   for the label column.
 #'
 #' @return
 #' A [`tibble`][tibble::tbl_df]-style data frame representing a data dictionary
@@ -30,13 +30,13 @@
 #' @export dict_from_odk
 dict_from_odk <- function(survey,
                           choices,
-                          column_labels = NULL) {
+                          col_labels = NULL) {
 
   # standardize names
   names(survey) <- janitor::make_clean_names(names(survey))
   names(choices) <- janitor::make_clean_names(names(choices))
 
-  col_labels <- grep("label_", names(survey), value = TRUE)[1]
+  if (is.null(col_labels)) col_labels <- grep("^label_*", names(survey), value = TRUE)[1]
 
   # remove empty or non-relevant rows
   survey_clean <- dplyr::as_tibble(survey) %>%

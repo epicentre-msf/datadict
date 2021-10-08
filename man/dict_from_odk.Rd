@@ -4,7 +4,7 @@
 \alias{dict_from_odk}
 \title{Convert an ODK template to the OCA data sharing dictionary standard}
 \usage{
-dict_from_odk(survey, choices, column_labels = NULL)
+dict_from_odk(survey, choices, col_labels = NULL)
 }
 \arguments{
 \item{survey}{A data.frame reflecting the 'survey' sheet within an ODK
@@ -13,10 +13,10 @@ template}
 \item{choices}{A data.frame reflecting the 'choices' sheet within an ODK
 template}
 
-\item{column_labels}{(Optional) Name of the column in sheet 'survey' giving
-variable labels, e.g. "label::English". Defaults to \code{NULL} in which case
-the first column starting with prefix "label::" is used for the label
-column.}
+\item{col_labels}{(Optional) Name of the column found in both sheets 'survey'
+and 'choices' giving variable labels, e.g. "label::English". Defaults to
+\code{NULL} in which case the first column starting with prefix "label" is used
+for the label column.}
 }
 \value{
 A \code{\link[tibble:tbl_df-class]{tibble}}-style data frame representing a data dictionary

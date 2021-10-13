@@ -42,7 +42,7 @@ dict_from_odk <- function(survey,
   survey_clean <- dplyr::as_tibble(survey) %>%
     janitor::remove_empty("rows") %>%
     dplyr::filter(!grepl("(begin|end)(\\_+|[[:space:]]+)group", .data$type)) %>%
-    dplyr::filter(!.data$type %in% c("start", "end", "note"))
+    dplyr::filter(!.data$type %in% c("note", "begin_repeat", "end_repeat"))
 
   choices_clean <- choices %>%
     janitor::remove_empty("rows")
@@ -62,6 +62,7 @@ dict_from_odk <- function(survey,
       type = dplyr::case_when(
         grepl("^select_one", .data$type) ~ "Coded list",
         grepl("^select_multiple", .data$type) ~ "Coded list",
+        .data$type %in% c("start", "end") ~ "Datetime",
         .data$type == "date" ~ "Date",
         .data$type == "today" ~ "Date",
         .data$type == "integer" ~ "Numeric",

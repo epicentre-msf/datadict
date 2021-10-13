@@ -31,3 +31,8 @@ paste_collapse <- function(x, quote = TRUE, collapse = ", ") {
   return(out)
 }
 
+#' @noRd
+paste_collapse_c <- function(x, quote = TRUE, collapse = ", ") {
+  paste0("c(", paste_collapse(x, quote = quote, collapse = collapse), ")")
+}
+

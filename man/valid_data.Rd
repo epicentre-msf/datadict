@@ -36,6 +36,7 @@ NULL. Prints checks and their results to the console.
 \description{
 Includes the following checks:
 \itemize{
+\item variables marked 'withheld' in dictionary contain only missing values
 \item all variables in dataset defined in dictionary
 \item all variables defined in dictionary present in dataset
 \item variables of type 'Numeric' are valid numbers

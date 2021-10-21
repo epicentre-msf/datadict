@@ -2,6 +2,7 @@
 #'
 #' @description
 #' Includes the following checks:
+#' - variables marked 'withheld' in dictionary contain only missing values
 #' - all variables in dataset defined in dictionary
 #' - all variables defined in dictionary present in dataset
 #' - variables of type 'Numeric' are valid numbers
@@ -54,6 +55,21 @@ valid_data <- function(data,
 
   # check dictionary
   check_dict <- valid_dict(dict)
+
+  # variable marked withheld with non-missing values
+  if (!"status" %in% names(dict)) dict$status <- NA_character_
+
+  vars_withheld <- dict$variable_name[dict$status %in% "withheld"]
+  vars_all_missing <- vapply(data[,vars_withheld], function(x) all(is.na(x)), FALSE)
+  vars_not_all_missing <- names(which(!vars_all_missing))
+
+  msg_withheld <- ifelse(
+    length(vars_not_all_missing) > 0,
+    paste_collapse_c(vars_not_all_missing),
+    "OK"
+  )
+
+  message(white("Checking for columns marked 'withheld' that contain non-missing values:\n   ", msg_withheld))
 
   # extra variables in data
   names_extra <- setdiff(names(data), dict$variable_name)

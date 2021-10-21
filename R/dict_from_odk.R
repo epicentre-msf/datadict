@@ -90,7 +90,8 @@ dict_from_odk <- function(survey,
   # standardize colnames
   survey_out <- survey_types %>%
     dplyr::mutate(
-      origin = "Original",
+      origin = "original",
+      status = "shared"
     ) %>%
     dplyr::select(
       variable_name = .data$name,
@@ -98,6 +99,7 @@ dict_from_odk <- function(survey,
       type          = .data$type,
       choices       = .data$choices,
       origin        = .data$origin,
+      status        = .data$status,
       dplyr::everything()
     )
 

@@ -90,7 +90,8 @@ dict_from_redcap <- function(x) {
   # standardize colnames
   x_out <- x_types %>%
     dplyr::mutate(
-      origin = "Original",
+      origin = "original",
+      status = "shared",
     ) %>%
     dplyr::select(
       variable_name = .data$field_name,
@@ -99,6 +100,7 @@ dict_from_redcap <- function(x) {
       type          = .data$field_type,
       choices       = .data$choices,
       origin        = .data$origin,
+      status        = .data$status,
       dplyr::everything()
     ) %>%
     dplyr::select(-.data$validation)

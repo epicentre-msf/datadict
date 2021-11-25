@@ -52,7 +52,7 @@ dict_from_data <- function(x,
 
   opts <- x %>%
     dplyr::select(dplyr::all_of(dict_coded$variable_name)) %>%
-    lapply(function(x) sort(unique(x[!is.na(x)])))
+    lapply(get_levels)
 
   dict_coded_long <- dict_coded %>%
     dplyr::mutate(choices_label = unname(.env$opts)) %>%
@@ -96,6 +96,8 @@ classify_type_ <- function(x, free_threshold) {
     } else {
       out <- "Coded list"
     }
+  } else if ("factor" %in% class(x)) {
+    out <- "Coded list"
   } else {
     out <- NA_character_
   }
@@ -121,3 +123,16 @@ labs_to_vals <- function(x) {
   x <- stringi::stri_trans_general(x, id = "Latin-ASCII")
   x
 }
+
+
+#' @noRd
+get_levels <- function(x) {
+  if (is.factor(x)) {
+    out <- levels(x)
+  } else {
+    out <- sort(unique(x[!is.na(x)]))
+  }
+  return(out)
+}
+
+

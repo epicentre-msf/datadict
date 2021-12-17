@@ -13,10 +13,10 @@ test_that("k_anonymity works as expected", {
   x1 <- k_anonymity(ll, vars = c("site", "sex", "age_group"), threshold = 10)
   expect_is(x1, "data.frame")
   expect_named(x1, c("site", "sex", "age_group", "k"))
-  expect_true(all(x1$k <= 10))
+  expect_true(all(x1$k < 10))
 
   x2 <- k_anonymity(ll, vars = c("sex", "age_group"), threshold = 15)
   expect_named(x2, c("sex", "age_group", "k"))
-  expect_true(all(x2$k <= 15))
+  expect_true(all(x2$k < 15))
 })
 

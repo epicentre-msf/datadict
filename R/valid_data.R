@@ -38,7 +38,7 @@
 #'
 #' @importFrom dplyr `%>%` mutate filter select anti_join everything
 #' @importFrom tidyr pivot_longer
-#' @importFrom rlang .data .env
+#' @importFrom rlang .data
 #' @importFrom crayon make_style
 #' @export valid_data
 valid_data <- function(data,
@@ -152,7 +152,7 @@ valid_data <- function(data,
     dplyr::select(dplyr::any_of(vars_coded)) %>%
     dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) %>%
     tidyr::pivot_longer(cols = dplyr::everything(), names_to = "variable_name") %>%
-    dplyr::anti_join(dict_coded, by = c("variable_name", "value" = .env$format_coded)) %>%
+    dplyr::anti_join(dict_coded, by = c("variable_name", "value" = format_coded)) %>%
     filter(!is.na(.data$value)) %>%
     unique()
 

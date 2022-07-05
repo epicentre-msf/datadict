@@ -9,6 +9,8 @@
 #' - no non-valid data types
 #' - no missing choices (for coded-list type variables)
 #' - no non-valid choices (for coded-list type variables)
+#' - no non-valid values in column `origin`
+#' - no non-valid values in column `status`
 #'
 #' @param dict A data frame reflecting a data dictionary to validate
 #'
@@ -32,11 +34,11 @@
 #' @export valid_dict
 valid_dict <- function(dict) {
 
-  cols_req <- c("variable_name", "type", "choices")
+  cols_req <- c("variable_name", "short_label", "type", "choices", "origin", "status")
   if (!all(cols_req %in% names(dict))) {
     stop(
-      "Dictionary must contain the following required columns: ",
-      paste_collapse(cols_req),
+      "Dictionary missing the following required columns: ",
+      paste_collapse(setdiff(cols_req, names(dict))),
       call. = FALSE
     )
   }
@@ -88,6 +90,24 @@ valid_dict <- function(dict) {
     stop(
       "Dictionary has non-parsable values in column `choices` for variables: ",
       paste_collapse(non_parsable_choices),
+      call. = FALSE
+    )
+  }
+
+  origin_valid <- c("original", "derived")
+  if (any(!dict$origin %in% origin_valid)) {
+    stop(
+      "Dictionary has non-valid values in column `origin`: ",
+      paste_collapse(setdiff(dict$origin, origin_valid)),
+      call. = FALSE
+    )
+  }
+
+  status_valid <- c("shared", "withheld")
+  if (any(!dict$status %in% status_valid)) {
+    stop(
+      "Dictionary has non-valid values in column `status`: ",
+      paste_collapse(setdiff(dict$status, status_valid)),
       call. = FALSE
     )
   }

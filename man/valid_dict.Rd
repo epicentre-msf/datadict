@@ -22,6 +22,8 @@ Includes the following checks:
 \item no non-valid data types
 \item no missing choices (for coded-list type variables)
 \item no non-valid choices (for coded-list type variables)
+\item no non-valid values in column \code{origin}
+\item no non-valid values in column \code{status}
 }
 }
 \examples{

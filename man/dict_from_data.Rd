@@ -18,12 +18,14 @@ other data types (such as Numeric, Date, etc.) and have more than
 Defaults to 10.}
 
 \item{factor_values}{Should values of factor-type (i.e. Coded list) variables
-be generated as integers ("int") or strings ("string"). Defaults to "int".\preformatted{ label    | int | string
+be generated as integers ("int") or strings ("string"). Defaults to "int".
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{ label    | int | string
 -------------------------
  Yes      | 0   | yes
  No       | 1   | no
  Not sure | 2   | not_sure
-}}
+}\if{html}{\out{</div>}}}
 }
 \value{
 A \code{\link[tibble:tbl_df-class]{tibble}}-style data frame representing a data dictionary

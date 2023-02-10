@@ -10,7 +10,8 @@ valid_data(
   format_date = "\%Y-\%m-\%d",
   format_time = "\%H:\%M:\%S",
   format_datetime = NULL,
-  format_coded = "label"
+  format_coded = "label",
+  verbose = TRUE
 )
 }
 \arguments{
@@ -29,9 +30,12 @@ to use defaults in \link[lubridate:as_date]{lubridate::as_datetime}.}
 
 \item{format_coded}{Expected format for coded-list variables, either "value"
 or "label". Defaults to "label.}
+
+\item{verbose}{Logical indicating whether to give warning describing the
+checks that have failed. Defaults to TRUE.}
 }
 \value{
-NULL. Prints checks and their results to the console.
+\code{TRUE} if all checks pass, \code{FALSE} if any checks fail
 }
 \description{
 Includes the following checks:

@@ -4,26 +4,26 @@
 \alias{valid_dict}
 \title{Check that a data dictionary complies with the OCA data sharing standard}
 \usage{
-valid_dict(dict)
+valid_dict(dict, verbose = TRUE)
 }
 \arguments{
 \item{dict}{A data frame reflecting a data dictionary to validate}
+
+\item{verbose}{Logical indicating whether to give warning describing the
+checks that have failed. Defaults to TRUE.}
 }
 \value{
-\code{TRUE} if all checks pass, else throws an error
+\code{TRUE} if all checks pass, \code{FALSE} if any checks fail
 }
 \description{
 Includes the following checks:
 \itemize{
 \item contains required columns
-\item no missing variable names
-\item no duplicated variable names
-\item no missing data types
-\item no non-valid data types
+\item required columns complete (no missing values)
+\item no duplicated values in column \code{variable_name}
+\item no non-valid values in columns \code{type}, \code{origin}, \code{status}
 \item no missing choices (for coded-list type variables)
-\item no non-valid choices (for coded-list type variables)
-\item no non-valid values in column \code{origin}
-\item no non-valid values in column \code{status}
+\item no incorrectly formatted choices (for coded-list type variables)
 }
 }
 \examples{

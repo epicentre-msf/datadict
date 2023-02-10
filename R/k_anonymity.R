@@ -2,39 +2,41 @@
 #'
 #' @description
 #' Given a dataset and set of one or more variables of interest (e.g. variables
-#' that are potential indirect identifiers), the function returns the
-#' combination(s) of those variables yielding counts (i.e. "k") less than a
-#' user-specified minimum acceptable threshold value.
+#' that are potential indirect identifiers), the function returns the minimum
+#' observed value of k in the dataset, corresponding to the unique combination
+#' of identifying variables with the fewest observations.
 #'
 #' @param x A data frame
 #' @param vars A character vector containing the name(s) of the variable(s) in
 #'   `x` to be included in the k-anonymity calculation
-#' @param threshold Integer threshold indicating the minimum acceptable value of
-#'   k. Combinations with values of k below the threshold will be flagged and
-#'   returned. A return with 0 rows indicates that no combinations have values
-#'   of k below the threshold.
 #'
 #' @return
-#' A [`tibble`][tibble::tbl_df]-style data frame containing counts of the
-#' variables specified in argument `vars` with counts (i.e. values of k) less
-#' than `threshold`.
+#' The minimum observed value of k in the dataset, corresponding to the
+#' unique combination of identifying variables with the fewest observations
 #'
 #' @examples
 #' # read example dataset
 #' path_data <- system.file("extdata", package = "datadict")
 #' dat <- readxl::read_xlsx(file.path(path_data, "linelist_cleaned.xlsx"))
 #'
-#' # check whether there are combinations of gender and age_cat with k < 5
-#' k_anonymity(dat, vars = c("gender", "age_cat"), threshold = 5)
+#' # find minimum observed k for potential indirect identifiers gender and age_cat
+#' k_anonymity(dat, vars = c("gender", "age_cat"))
 #'
-#' @importFrom dplyr `%>%` count across all_of arrange filter
-#' @importFrom rlang .data .env
+#' @importFrom dplyr `%>%` count across all_of
 #' @export k_anonymity
-k_anonymity <- function(x, vars, threshold) {
+k_anonymity <- function(x, vars) {
 
-  x %>%
-    dplyr::count(dplyr::across(dplyr::all_of(.env$vars)), name = "k") %>%
-    dplyr::arrange(.data$k) %>%
-    dplyr::filter(.data$k < threshold)
+  if (!all(vars %in% names(x))) {
+    stop(
+      "The following variables do no exist in the dataset: ",
+      paste_collapse(setdiff(vars, names(x))),
+      call. = FALSE
+    )
+  }
+
+  df_k <- x %>%
+    count(across(all_of(vars)), name = "k")
+
+  min(df_k$k)
 }
 

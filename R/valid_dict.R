@@ -1,21 +1,18 @@
 #' Check that a data dictionary complies with the OCA data sharing standard
 #'
-#' @description
-#' Includes the following checks:
+#' @description Includes the following checks:
 #' - contains required columns
-#' - no missing variable names
-#' - no duplicated variable names
-#' - no missing data types
-#' - no non-valid data types
+#' - required columns complete (no missing values)
+#' - no duplicated values in column `variable_name`
+#' - no non-valid values in columns `type`, `origin`, `status`
 #' - no missing choices (for coded-list type variables)
-#' - no non-valid choices (for coded-list type variables)
-#' - no non-valid values in column `origin`
-#' - no non-valid values in column `status`
+#' - no incorrectly formatted choices (for coded-list type variables)
 #'
 #' @param dict A data frame reflecting a data dictionary to validate
+#' @param verbose Logical indicating whether to give warning describing the
+#'   checks that have failed. Defaults to TRUE.
 #'
-#' @return
-#' `TRUE` if all checks pass, else throws an error
+#' @return `TRUE` if all checks pass, `FALSE` if any checks fail
 #'
 #' @examples
 #' # read example dataset
@@ -28,90 +25,145 @@
 #' # check for validity
 #' valid_dict(dict)
 #'
-#' @importFrom dplyr `%>%` mutate filter select pull
-#' @importFrom tidyr unnest
+#' @importFrom dplyr `%>%` mutate filter select pull distinct group_by summarize
+#' @importFrom dbc check_categorical
 #' @importFrom rlang .data
 #' @export valid_dict
-valid_dict <- function(dict) {
+valid_dict <- function(dict, verbose = TRUE) {
 
+
+  ## prep check and msg outputs ------------------------------------------------
+  checks <- c(
+    req_cols              = as.logical(NA),
+    no_missing_vals       = as.logical(NA),
+    no_duplicated_varname = as.logical(NA),
+    valid_categories      = as.logical(NA),
+    no_missing_choices    = as.logical(NA),
+    all_choices_parsable  = as.logical(NA)
+  )
+
+  msgs <- c(
+    req_cols              = "Unable to test",
+    no_missing_vals       = "Unable to test",
+    no_duplicated_varname = "Unable to test",
+    valid_categories      = "Unable to test",
+    no_missing_choices    = "Unable to test",
+    all_choices_parsable  = "Unable to test"
+  )
+
+
+  ## check that dict contains all required columns -----------------------------
   cols_req <- c("variable_name", "short_label", "type", "choices", "origin", "status")
-  if (!all(cols_req %in% names(dict))) {
-    stop(
-      "Dictionary missing the following required columns: ",
-      paste_collapse(setdiff(cols_req, names(dict))),
-      call. = FALSE
-    )
-  }
-  if (any(is.na(dict$variable_name))) {
-    rows_missing <- which(is.na(dict$variable_name))
-    stop(
-      "Dictionary has missing values in column `variable_name` at rows: ",
-      paste_collapse(rows_missing, quote = FALSE),
-      call. = FALSE
-    )
-  }
-  if (any(duplicated(dict$variable_name))) {
-    vars_duplicated <- unique(dict$variable_name[duplicated(dict$variable_name)])
-    stop(
-      "The following values of column `variable_name` are duplicated: ",
-      paste_collapse(vars_duplicated),
-      call. = FALSE
-    )
-  }
-  if (any(is.na(dict$type))) {
-    stop(
-      "Dictionary has missing values in column `type` for variables: ",
-      paste_collapse(dict$variable_name[is.na(dict$type)]),
-      call. = FALSE
-    )
-  }
-  type_valid <- c("Numeric", "Date", "Time", "Datetime", "Coded list", "Free text")
-  if (any(!dict$type %in% type_valid)) {
-    stop(
-      "Dictionary has non-valid values in column `type`: ",
-      paste_collapse(setdiff(dict$type, type_valid)),
-      call. = FALSE
-    )
-  }
-  if (any(is.na(dict$choices[dict$type == "Coded list"]))) {
-    stop(
-      "Dictionary has missing values in column `choices` for the following variables of type 'Coded list': ",
-      paste_collapse(dict$variable_name[dict$type == "Coded list" & is.na(dict$choices)]),
-      call. = FALSE
+
+  missing_req_cols <- setdiff(cols_req, names(dict))
+  checks["req_cols"] <- length(missing_req_cols) == 0L
+
+  msgs["req_cols"] <- ifelse(
+    checks["req_cols"],
+    "OK",
+    paste0("- Required columns missing: ", paste_collapse(missing_req_cols))
+  )
+
+
+  ## check that all required cols complete (no missing values) -----------------
+  if (any(c("variable_name", "type", "origin", "status")  %in% names(dict))) {
+
+    missing_vals <- dict %>%
+      select(any_of(c("variable_name", "type", "origin", "status"))) %>%
+      mutate(across(everything(), as.character)) %>%
+      pivot_longer(cols = everything()) %>%
+      filter(value %in% c("", NA_character_))
+
+    checks["no_missing_vals"] <- nrow(missing_vals) == 0L
+
+    msgs["no_missing_vals"] <- ifelse(
+      checks["no_missing_vals"],
+      "OK",
+      paste0("- Missing values in column(s): ", paste_collapse(unique(missing_vals$name)))
     )
   }
 
-  non_parsable_choices <- coded_options(dict) %>%
-    dplyr::filter(is.na(.data$value) | .data$value == "" | is.na(.data$label) | .data$label == "") %>%
-    dplyr::pull(.data$variable_name) %>%
-    unique()
 
-  if (length(non_parsable_choices) > 0) {
-    stop(
-      "Dictionary has non-parsable values in column `choices` for variables: ",
-      paste_collapse(non_parsable_choices),
-      call. = FALSE
+  ## check that no duplicated values in var variable_name ----------------------
+  if ("variable_name" %in% names(dict)) {
+
+    vars_duplicated_varname <- unique(dict$variable_name[duplicated(dict$variable_name)])
+    checks["no_duplicated_varname"] <- length(vars_duplicated_varname) == 0L
+
+    msgs["no_duplicated_varname"] <- ifelse(
+      checks["no_duplicated_varname"],
+      "OK",
+      paste0("- Duplicated values in column `variable_name`: ", paste_collapse(vars_duplicated_varname))
     )
   }
 
-  origin_valid <- c("original", "derived")
-  if (any(!dict$origin %in% origin_valid)) {
-    stop(
-      "Dictionary has non-valid values in column `origin`: ",
-      paste_collapse(setdiff(dict$origin, origin_valid)),
-      call. = FALSE
+
+  ## check that values of type, origin, and status are valid -------------------
+  if (any(c("type", "origin", "status")  %in% names(dict))) {
+
+    non_valid_categories <- dbc::check_categorical(
+      dict,
+      dict_valid_categories,
+      col_allowed_var = "var",
+      col_allowed_value = "val"
+    ) %>%
+      group_by(variable) %>%
+      summarize(value = paste_collapse(unique(value)), .groups = "drop") %>%
+      mutate(msg = paste0("- Column `", variable, "` has nonvalid value(s): ", value))
+
+    checks["valid_categories"] <- nrow(non_valid_categories) == 0L
+
+    msgs["valid_categories"] <- ifelse(
+      checks["valid_categories"],
+      "OK",
+      paste(non_valid_categories$msg, collapse = "\n   ")
     )
   }
 
-  status_valid <- c("shared", "withheld")
-  if (any(!dict$status %in% status_valid)) {
-    stop(
-      "Dictionary has non-valid values in column `status`: ",
-      paste_collapse(setdiff(dict$status, status_valid)),
-      call. = FALSE
+
+  if ("type" %in% names(dict) & "choices" %in% names(dict)) {
+
+    ## check no missing choices for vars of type "Coded list" ------------------
+    rows_missing_choices <- which(is.na(dict$choices) & dict$type == "Coded list") + 1L # add 1 to get row in spreadsheet
+    checks["no_missing_choices"] <-  length(rows_missing_choices) == 0L
+
+    msgs["no_missing_choices"] <- ifelse(
+      checks["no_missing_choices"],
+      "OK",
+      paste0("- Missing `choices` in row(s): ", paste_collapse(rows_missing_choices, quote = FALSE))
+    )
+
+
+    ## check that all Coded list choices are correctly formatted ---------------
+    dict$temp_row_id <- seq_len(nrow(dict))
+
+    choices <- coded_options(dict)
+
+    nonvalid_choices <- choices$value %in% c("", NA_character_) | choices$label %in% c("", NA_character_)
+    rows_nonvalid_choices <- unique(choices$temp_row_id[nonvalid_choices]) + 1L # add 1 to get row in spreadsheet
+    rows_nonvalid_choices <- setdiff(rows_nonvalid_choices, rows_missing_choices) # exclude if choice is missing entirely (already captured)
+
+    checks["all_choices_parsable"] <- length(rows_nonvalid_choices) == 0L
+
+    msgs["all_choices_parsable"] <- ifelse(
+      checks["all_choices_parsable"],
+      "OK",
+      paste0("- Incorrectly formatted `choices` in row(s): ", paste_collapse(rows_nonvalid_choices, quote = FALSE))
     )
   }
 
-  return(TRUE)
+
+  ## verbose explanation of checks ---------------------------------------------
+  if (verbose) {
+    msgs_out <- msgs[!msgs %in% "OK"]
+
+    if (length(msgs_out) > 0L) {
+      warning(paste(msgs_out, collapse = "\n"), call. = FALSE)
+    }
+  }
+
+
+  ## return --------------------------------------------------------------------
+  all(checks, na.rm = TRUE)
 }
 

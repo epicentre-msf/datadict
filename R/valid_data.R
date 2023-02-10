@@ -21,9 +21,10 @@
 #'   to use defaults in [lubridate::as_datetime].
 #' @param format_coded Expected format for coded-list variables, either "value"
 #'   or "label". Defaults to "label.
+#' @param verbose Logical indicating whether to give warning describing the
+#'   checks that have failed. Defaults to TRUE.
 #'
-#' @return
-#' NULL. Prints checks and their results to the console.
+#' @return `TRUE` if all checks pass, `FALSE` if any checks fail
 #'
 #' @examples
 #' # read example dataset
@@ -39,130 +40,172 @@
 #' @importFrom dplyr `%>%` mutate filter select anti_join everything
 #' @importFrom tidyr pivot_longer
 #' @importFrom rlang .data
-#' @importFrom crayon make_style
 #' @export valid_data
 valid_data <- function(data,
                        dict,
                        format_date = "%Y-%m-%d",
                        format_time = "%H:%M:%S",
                        format_datetime = NULL,
-                       format_coded = "label") {
+                       format_coded = "label",
+                       verbose = TRUE) {
+
 
   format_coded <- match.arg(format_coded, c("value", "label"))
 
-  # define crayon colors
-  white <- crayon::make_style("white")
-
-  # check dictionary
-  check_dict <- valid_dict(dict)
-
-  # variable marked withheld with non-missing values
-  if (!"status" %in% names(dict)) dict$status <- NA_character_
-
-  vars_withheld <- dict$variable_name[dict$status %in% "withheld"]
-  vars_all_missing <- vapply(data[,vars_withheld], function(x) all(is.na(x)), FALSE)
-  vars_not_all_missing <- names(which(!vars_all_missing))
-
-  msg_withheld <- ifelse(
-    length(vars_not_all_missing) > 0,
-    paste_collapse_c(vars_not_all_missing),
-    "OK"
+  ## prep check and msg outputs ------------------------------------------------
+  checks <- c(
+    withheld  = as.logical(NA),
+    extra     = as.logical(NA),
+    missing   = as.logical(NA),
+    numeric   = as.logical(NA),
+    date      = as.logical(NA),
+    time      = as.logical(NA),
+    datetime  = as.logical(NA),
+    coded     = as.logical(NA)
   )
 
-  message(white("Checking for columns marked 'withheld' that contain non-missing values:\n   ", msg_withheld))
+  msgs <- c(
+    withheld  = "Unable to test",
+    extra     = "Unable to test",
+    missing   = "Unable to test",
+    numeric   = "Unable to test",
+    date      = "Unable to test",
+    time      = "Unable to test",
+    datetime  = "Unable to test",
+    coded     = "Unable to test"
+  )
 
-  # extra variables in data
+
+  ## check dictionary ----------------------------------------------------------
+  if (!valid_dict(dict, verbose = FALSE)) {
+    stop("Dictionary does not pass all checks", call. = FALSE)
+  }
+
+
+  ## variable marked withheld with non-missing values --------------------------
+  vars_withheld <- dict$variable_name[dict$status %in% "withheld"]
+  vars_withheld_all_missing <- vapply(data[,vars_withheld], function(x) all(is.na(x)), FALSE)
+  vars_withheld_not_all_missing <- names(which(!vars_withheld_all_missing))
+
+  checks[["withheld"]] <- length(vars_withheld_not_all_missing) == 0L
+
+  msgs[["withheld"]] <- ifelse(
+    checks[["withheld"]],
+    "OK",
+    paste0("- Columns with status 'withheld' that contain non-missing values: ", paste_collapse(vars_withheld_not_all_missing))
+  )
+
+
+  ## Columns present in `data` but not defined in `dict` -----------------------
   names_extra <- setdiff(names(data), dict$variable_name)
 
-  msg_extra <- ifelse(
-    length(names_extra) > 0,
-    paste_collapse_c(names_extra),
-    "OK"
+  checks[["extra"]] <- length(names_extra) == 0L
+
+  msgs[["extra"]] <- ifelse(
+    checks[["extra"]],
+    "OK",
+    paste0("- Columns present in `data` but not defined in `dict`: ", paste_collapse(names_extra))
   )
 
-  message(white("Checking for columns present in `data` but not defined in `dict`:\n   ", msg_extra))
 
-  # missing variables in data
+  ## Columns defined in `dict` but not present in `data` -----------------------
   names_missing <- setdiff(dict$variable_name, names(data))
 
-  msg_missing <- ifelse(
-    length(names_missing) > 0,
-    paste_collapse_c(names_missing),
-    "OK"
+  checks[["missing"]] <- length(names_missing) == 0L
+
+  msgs[["missing"]] <- ifelse(
+    checks[["missing"]],
+    "OK",
+    paste0("- Columns defined in `dict` but not present in `data`: ", paste_collapse(names_missing))
   )
 
-  message(white("Checking for columns defined in `dict` but not present in `data`:\n   ", msg_missing))
 
-  # subset data and dict to shared vars
+  ## for remainder of tests, subset data and dict to common vars ---------------
   data <- data[,names(data) %in% dict$variable_name, drop = FALSE]
   dict <- dict[dict$variable_name %in% names(data),]
 
-  ### valid column types -------------------------------------------------------
 
-  # valid numeric
+  ## valid numeric -------------------------------------------------------------
   out_check_numeric <- check_class(data, dict, "Numeric")
 
-  msg_numeric <- ifelse(
-    !is.null(out_check_numeric) && nrow(out_check_numeric) > 0,
-    paste_collapse_c(unique(out_check_numeric$variable_name)),
-    "OK"
+  checks[["numeric"]] <- is.null(out_check_numeric) || nrow(out_check_numeric) == 0L
+
+  msgs[["numeric"]] <- ifelse(
+    checks[["numeric"]],
+    "OK",
+    paste0("- Variables of type 'Numeric' contain nonvalid values: ", paste_collapse(unique(out_check_numeric$variable_name)))
   )
 
-  message(white("Checking for problems with variables of type 'Numeric':\n   ", msg_numeric))
 
-  # valid date
+  ## valid date ----------------------------------------------------------------
   out_check_date <- check_class(data, dict, "Date", format_date = format_date)
 
-  msg_date <- ifelse(
-    !is.null(out_check_date) && nrow(out_check_date) > 0,
-    paste_collapse_c(unique(out_check_date$variable_name)),
-    "OK"
+  checks[["date"]] <- is.null(out_check_date) || nrow(out_check_date) == 0L
+
+  msgs[["date"]] <- ifelse(
+    checks[["date"]],
+    "OK",
+    paste0("- Variables of type 'Date' contain nonvalid values: ", paste_collapse(unique(out_check_date$variable_name)))
   )
 
-  message(white("Checking for problems with variables of type 'Date':\n   ", msg_date))
 
-  # valid time
+  ## valid time ----------------------------------------------------------------
   out_check_time <- check_class(data, dict, "Time", format_time = format_time)
 
-  msg_time <- ifelse(
-    !is.null(out_check_time) && nrow(out_check_time) > 0,
-    paste_collapse_c(unique(out_check_time$variable_name)),
-    "OK"
+  checks[["time"]] <- is.null(out_check_time) || nrow(out_check_time) == 0L
+
+  msgs[["time"]] <- ifelse(
+    checks[["time"]],
+    "OK",
+    paste0("- Variables of type 'Time' contain nonvalid values: ", paste_collapse(unique(out_check_time$variable_name)))
   )
 
-  message(white("Checking for problems with variables of type 'Time':\n   ", msg_time))
-
-  # valid datetime
+  ## valid datetime ------------------------------------------------------------
   out_check_datetime <- check_class(data, dict, "Datetime", format_datetime = format_datetime)
 
-  msg_datetime <- ifelse(
-    !is.null(out_check_datetime) && nrow(out_check_datetime) > 0,
-    paste_collapse_c(unique(out_check_datetime$variable_name)),
-    "OK"
+  checks[["datetime"]] <- is.null(out_check_datetime) || nrow(out_check_datetime) == 0L
+
+  msgs[["datetime"]] <- ifelse(
+    checks[["datetime"]],
+    "OK",
+    paste0("- Variables of type 'Datetime' contain nonvalid values: ", paste_collapse(unique(out_check_datetime$variable_name)))
   )
 
-  message(white("Checking for problems with variables of type 'Datetime':\n   ", msg_datetime))
 
-  # valid coded list
+  ## valid coded list ----------------------------------------------------------
   dict_coded <- coded_options(dict)
 
   vars_coded <- dict$variable_name[dict$type %in% "Coded list"]
 
   out_check_coded <- data %>%
-    dplyr::select(dplyr::any_of(vars_coded)) %>%
-    dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) %>%
-    tidyr::pivot_longer(cols = dplyr::everything(), names_to = "variable_name") %>%
-    dplyr::anti_join(dict_coded, by = c("variable_name", "value" = format_coded)) %>%
+    select(any_of(vars_coded)) %>%
+    mutate(across(everything(), as.character)) %>%
+    pivot_longer(cols = everything(), names_to = "variable_name") %>%
+    anti_join(dict_coded, by = c("variable_name", "value" = format_coded)) %>%
     filter(!is.na(.data$value)) %>%
     unique()
 
-  msg_coded <- ifelse(
-    nrow(out_check_coded) > 0,
-    paste_collapse_c(unique(out_check_coded$variable_name)),
-    "OK"
+  checks[["coded"]] <- is.null(out_check_coded) || nrow(out_check_coded) == 0L
+
+  msgs[["coded"]] <- ifelse(
+    checks[["coded"]],
+    "OK",
+    paste0("- Variables of type 'Coded list' contain nonvalid values: ", paste_collapse(unique(out_check_coded$variable_name)))
   )
 
-  message(white("Checking for problems with variables of type 'Coded list':\n   ", msg_coded))
+
+  ## verbose explanation of checks ---------------------------------------------
+  if (verbose) {
+    msgs_out <- msgs[!msgs %in% "OK"]
+
+    if (length(msgs_out) > 0L) {
+      warning(paste(msgs_out, collapse = "\n"), call. = FALSE)
+    }
+  }
+
+
+  ## return --------------------------------------------------------------------
+  all(checks, na.rm = TRUE)
 }
 
 
@@ -205,11 +248,11 @@ check_class <- function(data, dict, type, format_date, format_time, format_datet
 
   if (length(vars_focal) > 0) {
     data[, vars_focal, drop = FALSE] %>%
-      dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) %>%
-      tidyr::pivot_longer(cols = dplyr::everything(), names_to = "variable_name") %>%
-      dplyr::mutate(value_class = suppressWarnings(fn_class(.data$value))) %>%
-      dplyr::filter(is.na(.data$value_class), !is.na(.data$value)) %>%
-      dplyr::select(-.data$value_class) %>%
+      mutate(across(everything(), as.character)) %>%
+      tidyr::pivot_longer(cols = everything(), names_to = "variable_name") %>%
+      mutate(value_class = suppressWarnings(fn_class(.data$value))) %>%
+      filter(is.na(.data$value_class), !is.na(.data$value)) %>%
+      select(!any_of("value_class")) %>%
       unique()
   }
 }

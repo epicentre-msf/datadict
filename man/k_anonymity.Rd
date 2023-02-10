@@ -4,36 +4,30 @@
 \alias{k_anonymity}
 \title{Check the k-anonymity of one or more variables in a dataset}
 \usage{
-k_anonymity(x, vars, threshold)
+k_anonymity(x, vars)
 }
 \arguments{
 \item{x}{A data frame}
 
 \item{vars}{A character vector containing the name(s) of the variable(s) in
 \code{x} to be included in the k-anonymity calculation}
-
-\item{threshold}{Integer threshold indicating the minimum acceptable value of
-k. Combinations with values of k below the threshold will be flagged and
-returned. A return with 0 rows indicates that no combinations have values
-of k below the threshold.}
 }
 \value{
-A \code{\link[tibble:tbl_df-class]{tibble}}-style data frame containing counts of the
-variables specified in argument \code{vars} with counts (i.e. values of k) less
-than \code{threshold}.
+The minimum observed value of k in the dataset, corresponding to the
+unique combination of identifying variables with the fewest observations
 }
 \description{
 Given a dataset and set of one or more variables of interest (e.g. variables
-that are potential indirect identifiers), the function returns the
-combination(s) of those variables yielding counts (i.e. "k") less than a
-user-specified minimum acceptable threshold value.
+that are potential indirect identifiers), the function returns the minimum
+observed value of k in the dataset, corresponding to the unique combination
+of identifying variables with the fewest observations.
 }
 \examples{
 # read example dataset
 path_data <- system.file("extdata", package = "datadict")
 dat <- readxl::read_xlsx(file.path(path_data, "linelist_cleaned.xlsx"))
 
-# check whether there are combinations of gender and age_cat with k < 5
-k_anonymity(dat, vars = c("gender", "age_cat"), threshold = 5)
+# find minimum observed k for potential indirect identifiers gender and age_cat
+k_anonymity(dat, vars = c("gender", "age_cat"))
 
 }

@@ -33,3 +33,5 @@ Suggests:
     covr
 Remotes:
     epicentre-msf/dbc
+URL: https://github.com/epicentre-msf/datadict
+BugReports: https://github.com/epicentre-msf/datadict/issues

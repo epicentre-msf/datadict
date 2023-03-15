@@ -4,7 +4,7 @@
 #' - contains required columns
 #' - required columns complete (no missing values)
 #' - no duplicated values in column `variable_name`
-#' - no non-valid values in columns `type`, `origin`, `status`
+#' - no non-valid values in columns `type`, `origin`, `status`, `indirect_identifier`
 #' - no missing choices (for coded-list type variables)
 #' - no incorrectly formatted choices (for coded-list type variables)
 #'
@@ -66,10 +66,10 @@ valid_dict <- function(dict, verbose = TRUE) {
 
 
   ## check that all required cols complete (no missing values) -----------------
-  if (any(c("variable_name", "type", "origin", "status")  %in% names(dict))) {
+  if (any(c("variable_name", "type", "origin", "status", "indirect_identifier")  %in% names(dict))) {
 
     missing_vals <- dict %>%
-      select(any_of(c("variable_name", "type", "origin", "status"))) %>%
+      select(any_of(c("variable_name", "type", "origin", "status", "indirect_identifier"))) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = everything()) %>%
       filter(value %in% c("", NA_character_))
@@ -98,8 +98,8 @@ valid_dict <- function(dict, verbose = TRUE) {
   }
 
 
-  ## check that values of type, origin, and status are valid -------------------
-  if (any(c("type", "origin", "status")  %in% names(dict))) {
+  ## check that values of type, origin status, and indirect_identifier are valid
+  if (any(c("type", "origin", "status", "indirect_identifier")  %in% names(dict))) {
 
     non_valid_categories <- dbc::check_categorical(
       dict,

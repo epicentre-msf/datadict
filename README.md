@@ -119,11 +119,11 @@ dict[1:7,1:5]
 #> # A tibble: 7 × 5
 #>   variable_name        short_label type       choices               origin  
 #>   <chr>                <chr>       <chr>      <chr>                 <chr>   
-#> 1 case_id              <NA>        Free text  <NA>                  Original
-#> 2 generation           <NA>        Numeric    <NA>                  Original
-#> 3 date_infection       <NA>        Datetime   <NA>                  Original
-#> 4 date_onset           <NA>        Datetime   <NA>                  Original
-#> 5 date_hospitalisation <NA>        Datetime   <NA>                  Original
-#> 6 date_outcome         <NA>        Datetime   <NA>                  Original
-#> 7 outcome              <NA>        Coded list 0, Death | 1, Recover Original
+#> 1 case_id              <NA>        Free text  <NA>                  original
+#> 2 generation           <NA>        Numeric    <NA>                  original
+#> 3 date_infection       <NA>        Datetime   <NA>                  original
+#> 4 date_onset           <NA>        Datetime   <NA>                  original
+#> 5 date_hospitalisation <NA>        Datetime   <NA>                  original
+#> 6 date_outcome         <NA>        Datetime   <NA>                  original
+#> 7 outcome              <NA>        Coded list 0, Death | 1, Recover original
 ```

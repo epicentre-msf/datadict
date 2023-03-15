@@ -73,7 +73,7 @@ dict_from_data <- function(x,
 
   dict_out <- dict_prep %>%
     dplyr::left_join(dict_coded_wide, by = "variable_name") %>%
-    dplyr::mutate(origin = "original", status = "shared")
+    dplyr::mutate(origin = "original", status = "shared", indirect_identifier = NA_character_)
 
   # return
   dict_out

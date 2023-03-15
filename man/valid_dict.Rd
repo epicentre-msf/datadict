@@ -21,7 +21,7 @@ Includes the following checks:
 \item contains required columns
 \item required columns complete (no missing values)
 \item no duplicated values in column \code{variable_name}
-\item no non-valid values in columns \code{type}, \code{origin}, \code{status}
+\item no non-valid values in columns \code{type}, \code{origin}, \code{status}, \code{indirect_identifier}
 \item no missing choices (for coded-list type variables)
 \item no incorrectly formatted choices (for coded-list type variables)
 }

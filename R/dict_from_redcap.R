@@ -92,15 +92,17 @@ dict_from_redcap <- function(x) {
     dplyr::mutate(
       origin = "original",
       status = "shared",
+      indirect_identifier = NA_character_
     ) %>%
     dplyr::select(
-      variable_name = .data$field_name,
-      form_or_group = .data$form_name,
-      short_label   = .data$field_label,
-      type          = .data$field_type,
-      choices       = .data$choices,
-      origin        = .data$origin,
-      status        = .data$status,
+      variable_name        = .data$field_name,
+      form_or_group        = .data$form_name,
+      short_label          = .data$field_label,
+      type                 = .data$field_type,
+      choices              = .data$choices,
+      origin               = .data$origin,
+      status               = .data$status,
+      indirect_identifier  = .data$indirect_identifier,
       dplyr::everything()
     ) %>%
     dplyr::select(-.data$validation)

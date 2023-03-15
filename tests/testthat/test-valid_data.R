@@ -5,6 +5,7 @@ test_that("valid_data works as expected", {
   path_data <- system.file("extdata", package = "datadict")
   dat <- readxl::read_xlsx(file.path(path_data, "linelist_cleaned.xlsx"))
   dict <- dict_from_data(dat)
+  dict$indirect_identifier <- rep("no", nrow(dict))
 
   # generate data dictionary template from dataset
   dat1 <- dat2 <- dat3 <- dat4 <- dat5 <- dat6 <- dat

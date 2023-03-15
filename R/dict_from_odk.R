@@ -91,15 +91,17 @@ dict_from_odk <- function(survey,
   survey_out <- survey_types %>%
     dplyr::mutate(
       origin = "original",
-      status = "shared"
+      status = "shared",
+      indirect_identifier = NA_character_
     ) %>%
     dplyr::select(
-      variable_name = .data$name,
-      short_label   = .data[[col_labels]],
-      type          = .data$type,
-      choices       = .data$choices,
-      origin        = .data$origin,
-      status        = .data$status,
+      variable_name       = .data$name,
+      short_label         = .data[[col_labels]],
+      type                = .data$type,
+      choices             = .data$choices,
+      origin              = .data$origin,
+      status              = .data$status,
+      indirect_identifier = .data$indirect_identifier,
       dplyr::everything()
     )
 

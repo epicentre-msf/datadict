@@ -3,7 +3,7 @@
 contains required columns
 required columns complete (no missing values)
 no duplicated values in column variable_name
-no non-valid values in columns type, origin, status
+no non-valid values in columns type, origin, status, indirect_identifier
 no missing choices (for coded-list type variables)
 no incorrectly formatted choices (for coded-list type variables)
 
@@ -11,7 +11,7 @@ no incorrectly formatted choices (for coded-list type variables)
 contains required columns
 required columns complete (no missing values)
 no duplicated values in column variable_name
-no non-valid values in columns type, origin, status
+no non-valid values in columns type, origin, status, indirect_identifier
 no missing choices (for coded-list type variables)
 no incorrectly formatted choices (for coded-list type variables)
 
@@ -62,7 +62,7 @@ no incorrectly formatted choices (for coded-list type variables)
     <p>Includes the following checks:</p><ul><li><p>contains required columns</p></li>
 <li><p>required columns complete (no missing values)</p></li>
 <li><p>no duplicated values in column <code>variable_name</code></p></li>
-<li><p>no non-valid values in columns <code>type</code>, <code>origin</code>, <code>status</code></p></li>
+<li><p>no non-valid values in columns <code>type</code>, <code>origin</code>, <code>status</code>, <code>indirect_identifier</code></p></li>
 <li><p>no missing choices (for coded-list type variables)</p></li>
 <li><p>no incorrectly formatted choices (for coded-list type variables)</p></li>
 </ul></div>
@@ -98,6 +98,9 @@ checks that have failed. Defaults to TRUE.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># generate data dictionary template from dataset</span></span></span>
 <span class="r-in"><span><span class="va">dict</span> <span class="op">&lt;-</span> <span class="fu"><a href="dict_from_data.html">dict_from_data</a></span><span class="op">(</span><span class="va">dat</span>, factor_values <span class="op">=</span> <span class="st">"string"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># dictionary column 'indirect_identifier' must be manually specified (yes/no)</span></span></span>
+<span class="r-in"><span><span class="va">dict</span><span class="op">$</span><span class="va">indirect_identifier</span> <span class="op">&lt;-</span> <span class="st">"no"</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># check for validity</span></span></span>
 <span class="r-in"><span><span class="fu">valid_dict</span><span class="op">(</span><span class="va">dict</span><span class="op">)</span></span></span>

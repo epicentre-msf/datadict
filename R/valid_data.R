@@ -34,6 +34,9 @@
 #' # generate data dictionary template from dataset
 #' dict <- dict_from_data(dat, factor_values = "string")
 #'
+#' # dictionary column 'indirect_identifier' must be manually specified (yes/no)
+#' dict$indirect_identifier <- "no"
+#'
 #' # check for validity
 #' valid_data(dat, dict)
 #'

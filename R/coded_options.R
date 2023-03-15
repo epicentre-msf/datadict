@@ -13,14 +13,14 @@
 coded_options <- function(dict) {
 
   dict %>%
-    dplyr::filter(.data$type == "Coded list") %>%
-    dplyr::mutate(choices_split = lapply(.data$choices, split_choices)) %>%
+    filter(.data$type == "Coded list") %>%
+    mutate(choices_split = lapply(.data$choices, split_choices)) %>%
     tidyr::unnest("choices_split") %>%
-    dplyr::mutate(
+    mutate(
       value = vapply(.data$choices_split, split_value_label, "", i = 1),
       label = vapply(.data$choices_split, split_value_label, "", i = 2)
     ) %>%
-    dplyr::select(-.data$choices, -.data$choices_split)
+    select(!any_of(c("choices", "choices_split")))
 }
 
 

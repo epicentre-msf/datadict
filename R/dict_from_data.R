@@ -30,7 +30,7 @@
 #' # generate data dictionary template from dataset
 #' dict_from_data(dat, factor_values = "string")
 #'
-#' @importFrom dplyr `%>%` mutate filter select group_by ungroup summarize tibble all_of n
+#' @importFrom dplyr `%>%` mutate filter select group_by ungroup summarize tibble all_of n across
 #' @importFrom tidyr unnest
 #' @importFrom rlang .data .env
 #' @export dict_from_data
@@ -40,40 +40,40 @@ dict_from_data <- function(x,
 
   factor_values <- match.arg(factor_values, c("int", "string"))
 
-  dict_prep <- dplyr::tibble(
+  dict_prep <- tibble(
     variable_name = names(x),
     short_label = NA_character_,
     type = classify_type(x, factor_threshold)
   )
 
   dict_coded <- dict_prep %>%
-    dplyr::filter(.data$type == "Coded list") %>%
-    dplyr::select(.data$variable_name)
+    filter(.data$type == "Coded list") %>%
+    select("variable_name")
 
   opts <- x %>%
-    dplyr::select(dplyr::all_of(dict_coded$variable_name)) %>%
+    select(all_of(dict_coded$variable_name)) %>%
     lapply(get_levels)
 
   dict_coded_long <- dict_coded %>%
-    dplyr::mutate(choices_label = unname(.env$opts)) %>%
+    mutate(choices_label = unname(.env$opts)) %>%
     tidyr::unnest("choices_label") %>%
-    dplyr::group_by(.data$variable_name) %>%
-    dplyr::mutate(choices_value = as.character(seq_len(dplyr::n()) - 1L), .before = .data$choices_label) %>%
-    dplyr::ungroup()
+    group_by(across("variable_name")) %>%
+    mutate(choices_value = as.character(seq_len(n()) - 1L), .before = "choices_label") %>%
+    ungroup()
 
   if (factor_values == "string") {
     dict_coded_long <- dict_coded_long %>%
-      dplyr::mutate(choices_value = labs_to_vals(.data$choices_label))
+      mutate(choices_value = labs_to_vals(.data$choices_label))
   }
 
   dict_coded_wide <- dict_coded_long %>%
-    dplyr::mutate(name_lab = paste(.data$choices_value, .data$choices_label, sep = ", ")) %>%
-    dplyr::group_by(.data$variable_name) %>%
-    dplyr::summarize(choices = paste(.data$name_lab, collapse = " | "), .groups = "drop")
+    mutate(name_lab = paste(.data$choices_value, .data$choices_label, sep = ", ")) %>%
+    group_by(across("variable_name")) %>%
+    summarize(choices = paste(.data$name_lab, collapse = " | "), .groups = "drop")
 
   dict_out <- dict_prep %>%
-    dplyr::left_join(dict_coded_wide, by = "variable_name") %>%
-    dplyr::mutate(origin = "original", status = "shared", indirect_identifier = NA_character_)
+    left_join(dict_coded_wide, by = "variable_name") %>%
+    mutate(origin = "original", status = "shared", indirect_identifier = NA_character_)
 
   # return
   dict_out

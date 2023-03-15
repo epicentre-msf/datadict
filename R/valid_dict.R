@@ -22,6 +22,9 @@
 #' # generate data dictionary template from dataset
 #' dict <- dict_from_data(dat, factor_values = "string")
 #'
+#' # dictionary column 'indirect_identifier' must be manually specified (yes/no)
+#' dict$indirect_identifier <- "no"
+#'
 #' # check for validity
 #' valid_dict(dict)
 #'
@@ -72,7 +75,7 @@ valid_dict <- function(dict, verbose = TRUE) {
       select(any_of(c("variable_name", "type", "origin", "status", "indirect_identifier"))) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = everything()) %>%
-      filter(value %in% c("", NA_character_))
+      filter(.data$value %in% c("", NA_character_))
 
     checks["no_missing_vals"] <- nrow(missing_vals) == 0L
 
@@ -107,9 +110,9 @@ valid_dict <- function(dict, verbose = TRUE) {
       col_allowed_var = "var",
       col_allowed_value = "val"
     ) %>%
-      group_by(variable) %>%
-      summarize(value = paste_collapse(unique(value)), .groups = "drop") %>%
-      mutate(msg = paste0("- Column `", variable, "` has nonvalid value(s): ", value))
+      group_by(across("variable")) %>%
+      summarize(value = paste_collapse(unique(.data$value)), .groups = "drop") %>%
+      mutate(msg = paste0("- Column `", .data$variable, "` has nonvalid value(s): ", .data$value))
 
     checks["valid_categories"] <- nrow(non_valid_categories) == 0L
 

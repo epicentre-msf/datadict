@@ -36,31 +36,31 @@ dict_from_redcap <- function(x) {
   names(x)[names(x) == "branching_logic_show_field_only_if"] <- "branching_logic"
 
   # remove rows of type descriptive, and extra cols returned by redcap pkg
-  x_prep <- dplyr::as_tibble(x) %>%
-    dplyr::filter(!.data$field_type %in% c("descriptive", "file")) %>%
-    dplyr::select(-dplyr::any_of(c("field_name_orig", "field_label_orig"))) %>%
-    dplyr::mutate(
-      choices = dplyr::if_else(.data$field_type %in% "yesno", "0, No | 1, Yes", .data$choices)
+  x_prep <- as_tibble(x) %>%
+    filter(!.data$field_type %in% c("descriptive", "file")) %>%
+    select(-any_of(c("field_name_orig", "field_label_orig"))) %>%
+    mutate(
+      choices = if_else(.data$field_type %in% "yesno", "0, No | 1, Yes", .data$choices)
     ) %>%
     empty_to_na()
 
   # standardize field types
   x_types <- x_prep %>%
-    dplyr::mutate(
-      calculation = dplyr::if_else(
+    mutate(
+      calculation = if_else(
         .data$field_type == "calc",
         .data$choices,
         NA_character_
       ),
       .after = "choices"
     ) %>%
-    dplyr::mutate(
-      choices = dplyr::if_else(
+    mutate(
+      choices = if_else(
         .data$field_type == "calc",
         NA_character_,
         .data$choices
       ),
-      field_type = dplyr::case_when(
+      field_type = case_when(
         grepl("^number|^integer", .data$validation) | .data$field_type %in% "calc" ~ "Numeric",
         grepl("^date", .data$validation) ~ "Date",
         grepl("^time", .data$validation) ~ "Time",
@@ -89,23 +89,23 @@ dict_from_redcap <- function(x) {
 
   # standardize colnames
   x_out <- x_types %>%
-    dplyr::mutate(
+    mutate(
       origin = "original",
       status = "shared",
       indirect_identifier = NA_character_
     ) %>%
-    dplyr::select(
-      variable_name        = .data$field_name,
-      form_or_group        = .data$form_name,
-      short_label          = .data$field_label,
-      type                 = .data$field_type,
-      choices              = .data$choices,
-      origin               = .data$origin,
-      status               = .data$status,
-      indirect_identifier  = .data$indirect_identifier,
-      dplyr::everything()
+    select(
+      "variable_name" = "field_name",
+      "form_or_group" = "form_name",
+      "short_label" = "field_label",
+      "type" = "field_type",
+      "choices",
+      "origin",
+      "status",
+      "indirect_identifier",
+      everything()
     ) %>%
-    dplyr::select(-.data$validation)
+    select(!"validation")
 
   # return
   x_out

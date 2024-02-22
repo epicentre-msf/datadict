@@ -69,10 +69,11 @@ valid_dict <- function(dict, verbose = TRUE) {
 
 
   ## check that all required cols complete (no missing values) -----------------
-  if (any(c("variable_name", "type", "origin", "status", "indirect_identifier")  %in% names(dict))) {
+  # TODO: consider whether to add check for missing vals indirect_identifier column
+  if (any(c("variable_name", "type", "origin", "status")  %in% names(dict))) {
 
     missing_vals <- dict %>%
-      select(any_of(c("variable_name", "type", "origin", "status", "indirect_identifier"))) %>%
+      select(any_of(c("variable_name", "type", "origin", "status"))) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = everything()) %>%
       filter(.data$value %in% c("", NA_character_))

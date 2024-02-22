@@ -64,10 +64,10 @@ test_that("valid_dict works as expected", {
   expect_false(valid_dict(d12, verbose = FALSE))
   expect_warning(valid_dict(d12, verbose = TRUE))
 
-  # missing value in column 'indirect_identifier'
-  d13$indirect_identifier[9] <- NA_character_
-  expect_false(valid_dict(d13, verbose = FALSE))
-  expect_warning(valid_dict(d13, verbose = TRUE))
+  # # missing value in column 'indirect_identifier'
+  # d13$indirect_identifier[9] <- NA_character_
+  # expect_false(valid_dict(d13, verbose = FALSE))
+  # expect_warning(valid_dict(d13, verbose = TRUE))
 
   # non-valid value in column 'indirect_identifier'
   d14$indirect_identifier[9] <- "blah"

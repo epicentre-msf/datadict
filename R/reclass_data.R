@@ -13,7 +13,7 @@
 #' @return
 #' The dataset with columns reclassed to match the data dictionary
 #'
-#' @importFrom dplyr `%>%`
+#' @importFrom dplyr `%>%` mutate across everything
 #' @export reclass_data
 reclass_data <- function(data,
                          dict,
@@ -24,6 +24,7 @@ reclass_data <- function(data,
   check_dict <- valid_dict(dict)
 
   data %>%
+    mutate(across(everything(), as.character)) %>%
     reclass(dict, "Numeric", format_date, format_time, format_datetime) %>%
     reclass(dict, "Date", format_date, format_time, format_datetime) %>%
     reclass(dict, "Time", format_date, format_time, format_datetime) %>%
@@ -50,9 +51,9 @@ reclass <- function(data, dict, type, format_date, format_time, format_datetime)
   out <- data
 
   for (var in vars_focal) {
-    data[[var]] <- suppressWarnings(fn_class(data[[var]]))
+    out[[var]] <- fn_class(out[[var]])
   }
 
-  return(data)
+  return(out)
 }
 

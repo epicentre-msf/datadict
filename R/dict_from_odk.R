@@ -37,6 +37,7 @@ dict_from_odk <- function(survey,
   names(choices) <- janitor::make_clean_names(names(choices))
 
   if (is.null(col_labels)) col_labels <- grep("^label_*", names(survey), value = TRUE)[1]
+  col_labels <- janitor::make_clean_names(col_labels)
 
   # remove empty or non-relevant rows
   survey_clean <- as_tibble(survey) %>%

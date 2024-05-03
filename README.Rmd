@@ -89,6 +89,7 @@ are based on the class of each column within in the input dataset, e.g.:
 | ------------------|----------------------|
 | Date | Date |
 | POSIX | Datetime |
+| logical | Logical |
 | integer | Numeric |
 | numeric | Numeric |
 | factor | Coded list |

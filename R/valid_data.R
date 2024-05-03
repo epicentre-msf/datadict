@@ -128,6 +128,18 @@ valid_data <- function(data,
   dict <- dict[dict$variable_name %in% names(data),]
 
 
+  ## valid logical -------------------------------------------------------------
+  out_check_logical <- check_class(data, dict, "Logical")
+
+  checks[["logical"]] <- is.null(out_check_logical) || nrow(out_check_logical) == 0L
+
+  msgs[["logical"]] <- ifelse(
+    checks[["logical"]],
+    "OK",
+    paste0("- Variables of type 'Logical' contain nonvalid values: ", paste_collapse(unique(out_check_logical$variable_name)))
+  )
+
+
   ## valid numeric -------------------------------------------------------------
   out_check_numeric <- check_class(data, dict, "Numeric")
 
@@ -243,6 +255,7 @@ check_class <- function(data, dict, type, format_date, format_time, format_datet
 
   fn_class <- switch(
     type,
+    "Logical" = function(x) as.logical(x),
     "Numeric" = function(x) as.numeric(x),
     "Date" = function(x) lubridate::as_date(x, format = format_date),
     "Time" = function(x) as.POSIXct(x, format = format_time),

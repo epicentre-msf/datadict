@@ -17,7 +17,7 @@ test_that("dict_from_data works as expected", {
   expect_true(all(cols_req %in% names(x1)))
 
   # expect valid data types
-  types_valid <- c("Numeric", "Date", "Time", "Datetime", "Coded list", "Free text")
+  types_valid <- c("Logical", "Numeric", "Date", "Time", "Datetime", "Coded list", "Free text")
   expect_true(all(x1$type %in% types_valid))
 
   # test arg factor_values

@@ -88,6 +88,8 @@ classify_type_ <- function(x, free_threshold) {
     out <- "Date"
   } else if (any(grepl("POSIX", class(x)))) {
     out <- "Datetime"
+  } else if ("logical" %in% class(x)) {
+    out <- "Logical"
   } else if ("integer" %in% class(x) | "numeric" %in% class(x)) {
     out <- "Numeric"
   } else if ("character" %in% class(x)) {

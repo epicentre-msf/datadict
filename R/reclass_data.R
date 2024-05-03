@@ -25,6 +25,7 @@ reclass_data <- function(data,
 
   data %>%
     mutate(across(everything(), as.character)) %>%
+    reclass(dict, "Logical", format_date, format_time, format_datetime) %>%
     reclass(dict, "Numeric", format_date, format_time, format_datetime) %>%
     reclass(dict, "Date", format_date, format_time, format_datetime) %>%
     reclass(dict, "Time", format_date, format_time, format_datetime) %>%
@@ -39,6 +40,7 @@ reclass <- function(data, dict, type, format_date, format_time, format_datetime)
 
   fn_class <- switch(
     type,
+    "Logical" = function(x) as.logical(x),
     "Numeric" = function(x) as.numeric(x),
     "Date" = function(x) lubridate::as_date(x, format = format_date),
     "Time" = function(x) as.POSIXct(x, format = format_time),

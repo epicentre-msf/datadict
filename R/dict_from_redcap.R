@@ -96,12 +96,12 @@ dict_from_redcap <- function(x) {
     ) %>%
     select(
       "variable_name" = "field_name",
-      "form_or_group" = "form_name",
       "short_label" = "field_label",
       "type" = "field_type",
       "choices",
       "origin",
       "status",
+      "form_or_group" = "form_name",
       "indirect_identifier",
       everything()
     ) %>%

@@ -128,13 +128,13 @@ valid_dict <- function(dict, verbose = TRUE) {
   if ("type" %in% names(dict) & "choices" %in% names(dict)) {
 
     ## check no missing choices for vars of type "Coded list" ------------------
-    rows_missing_choices <- which(is.na(dict$choices) & dict$type == "Coded list") + 1L # add 1 to get row in spreadsheet
+    rows_missing_choices <- which(is.na(dict$choices) & dict$type == "Coded list")
     checks["no_missing_choices"] <-  length(rows_missing_choices) == 0L
 
     msgs["no_missing_choices"] <- ifelse(
       checks["no_missing_choices"],
       "OK",
-      paste0("- Missing `choices` in row(s): ", paste_collapse(rows_missing_choices, quote = FALSE))
+      paste0("- Missing `choices` in data frame row(s): ", paste_collapse(rows_missing_choices, quote = FALSE))
     )
 
 
@@ -144,7 +144,7 @@ valid_dict <- function(dict, verbose = TRUE) {
     choices <- coded_options(dict)
 
     nonvalid_choices <- choices$value %in% c("", NA_character_) | choices$label %in% c("", NA_character_)
-    rows_nonvalid_choices <- unique(choices$temp_row_id[nonvalid_choices]) + 1L # add 1 to get row in spreadsheet
+    rows_nonvalid_choices <- unique(choices$temp_row_id[nonvalid_choices])
     rows_nonvalid_choices <- setdiff(rows_nonvalid_choices, rows_missing_choices) # exclude if choice is missing entirely (already captured)
 
     checks["all_choices_parsable"] <- length(rows_nonvalid_choices) == 0L
@@ -152,7 +152,7 @@ valid_dict <- function(dict, verbose = TRUE) {
     msgs["all_choices_parsable"] <- ifelse(
       checks["all_choices_parsable"],
       "OK",
-      paste0("- Incorrectly formatted `choices` in row(s): ", paste_collapse(rows_nonvalid_choices, quote = FALSE))
+      paste0("- Incorrectly formatted `choices` in data frame row(s): ", paste_collapse(rows_nonvalid_choices, quote = FALSE))
     )
   }
 

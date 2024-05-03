@@ -1,12 +1,13 @@
 #' Check that a data dictionary complies with the OCA data sharing standard
 #'
 #' @description Includes the following checks:
-#' - contains required columns
+#' - contains required columns (`variable_name`, `short_label`, `type`, `choices`, `origin`, `status`)
 #' - required columns complete (no missing values)
 #' - no duplicated values in column `variable_name`
 #' - no non-valid values in columns `type`, `origin`, `status`, `indirect_identifier`
-#' - no missing choices (for coded-list type variables)
-#' - no incorrectly formatted choices (for coded-list type variables)
+#' - for coded-list type variables:
+#'   - no missing choices
+#'   - no incorrectly formatted choices (expected format is "value1, Label 1 | value2, Label 2 | ...")
 #'
 #' @param dict A data frame reflecting a data dictionary to validate
 #' @param verbose Logical indicating whether to give warning describing the

@@ -18,12 +18,15 @@ checks that have failed. Defaults to TRUE.}
 \description{
 Includes the following checks:
 \itemize{
-\item contains required columns
+\item contains required columns (\code{variable_name}, \code{short_label}, \code{type}, \code{choices}, \code{origin}, \code{status})
 \item required columns complete (no missing values)
 \item no duplicated values in column \code{variable_name}
 \item no non-valid values in columns \code{type}, \code{origin}, \code{status}, \code{indirect_identifier}
-\item no missing choices (for coded-list type variables)
-\item no incorrectly formatted choices (for coded-list type variables)
+\item for coded-list type variables:
+\itemize{
+\item no missing choices
+\item no incorrectly formatted choices (expected format is "value1, Label 1 | value2, Label 2 | ...")
+}
 }
 }
 \examples{

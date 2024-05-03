@@ -43,6 +43,7 @@ Includes the following checks:
 \item variables marked 'withheld' in dictionary contain only missing values
 \item all variables in dataset defined in dictionary
 \item all variables defined in dictionary present in dataset
+\item variables of type 'Logical' are all TRUE/FALSE (or 1/0)
 \item variables of type 'Numeric' are valid numbers
 \item variables of type 'Date' are valid dates
 \item variables of type 'Time' are valid times

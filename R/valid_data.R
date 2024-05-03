@@ -5,6 +5,7 @@
 #' - variables marked 'withheld' in dictionary contain only missing values
 #' - all variables in dataset defined in dictionary
 #' - all variables defined in dictionary present in dataset
+#' - variables of type 'Logical' are all TRUE/FALSE (or 1/0)
 #' - variables of type 'Numeric' are valid numbers
 #' - variables of type 'Date' are valid dates
 #' - variables of type 'Time' are valid times

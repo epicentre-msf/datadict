@@ -32,7 +32,17 @@ A \code{\link[tibble:tbl_df-class]{tibble}}-style data frame representing a data
 template formatted to the OCA data sharing standard
 }
 \description{
-Generate a data dictionary template from a dataset
+Inferred data types for each field are based on the class of each column
+within in the input dataset:\tabular{ll}{
+   Column class in data \tab Dictionary data type \cr
+   Date \tab Date \cr
+   POSIX \tab Datetime \cr
+   logical \tab Logical \cr
+   integer \tab Numeric \cr
+   numeric \tab Numeric \cr
+   factor \tab Coded list \cr
+   character \tab Coded list or Free text (see argument \code{factor_threshold}) \cr
+}
 }
 \examples{
 # read example dataset

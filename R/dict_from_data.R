@@ -1,5 +1,20 @@
 #' Generate a data dictionary template from a dataset
 #'
+#' @description
+#'
+#' Inferred data types for each field are based on the class of each column
+#' within in the input dataset:
+#'
+#' | Column class in data | Dictionary data type |
+#' | ---------------------|----------------------|
+#' | Date | Date |
+#' | POSIX | Datetime |
+#' | logical | Logical |
+#' | integer | Numeric |
+#' | numeric | Numeric |
+#' | factor | Coded list |
+#' | character | Coded list or Free text (see argument `factor_threshold`) |
+#'
 #' @param x A data frame reflecting the dataset from which to generate a data
 #'   dictionary template
 #' @param factor_threshold An integer representing the maximum number of unique

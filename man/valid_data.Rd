@@ -11,6 +11,7 @@ valid_data(
   format_time = "\%H:\%M:\%S",
   format_datetime = NULL,
   format_coded = "label",
+  vals_withheld = NA,
   verbose = TRUE
 )
 }
@@ -30,6 +31,9 @@ to use defaults in \link[lubridate:as_date]{lubridate::as_datetime}.}
 
 \item{format_coded}{Expected format for coded-list variables, either "value"
 or "label". Defaults to "label.}
+
+\item{vals_withheld}{Expected value(s) in columns that are withheld. Default
+to \code{NA}.}
 
 \item{verbose}{Logical indicating whether to give warning describing the
 checks that have failed. Defaults to TRUE.}

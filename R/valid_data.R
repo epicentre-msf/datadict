@@ -22,6 +22,8 @@
 #'   to use defaults in [lubridate::as_datetime].
 #' @param format_coded Expected format for coded-list variables, either "value"
 #'   or "label". Defaults to "label.
+#' @param vals_withheld Expected value(s) in columns that are withheld. Default
+#'   to `NA`.
 #' @param verbose Logical indicating whether to give warning describing the
 #'   checks that have failed. Defaults to TRUE.
 #'
@@ -51,6 +53,7 @@ valid_data <- function(data,
                        format_time = "%H:%M:%S",
                        format_datetime = NULL,
                        format_coded = "label",
+                       vals_withheld = NA,
                        verbose = TRUE) {
 
 
@@ -88,7 +91,7 @@ valid_data <- function(data,
 
   ## variable marked withheld with non-missing values --------------------------
   vars_withheld <- dict$variable_name[dict$status %in% "withheld"]
-  vars_withheld_all_missing <- vapply(data[,vars_withheld], function(x) all(is.na(x)), FALSE)
+  vars_withheld_all_missing <- vapply(data[,vars_withheld], function(x) all(x %in% vals_withheld), FALSE)
   vars_withheld_not_all_missing <- names(which(!vars_withheld_all_missing))
 
   checks[["withheld"]] <- length(vars_withheld_not_all_missing) == 0L
@@ -125,8 +128,10 @@ valid_data <- function(data,
 
 
   ## for remainder of tests, subset data and dict to common vars ---------------
-  data <- data[,names(data) %in% dict$variable_name, drop = FALSE]
-  dict <- dict[dict$variable_name %in% names(data),]
+  # excluding vars that are withheld
+  common_vars <- intersect(names(data), dict$variable_name[!dict$status %in% "withheld"])
+  data <- data[,names(data) %in% common_vars, drop = FALSE]
+  dict <- dict[dict$variable_name %in% common_vars,]
 
 
   ## valid logical -------------------------------------------------------------
@@ -190,16 +195,19 @@ valid_data <- function(data,
 
   ## valid coded list ----------------------------------------------------------
   dict_coded <- coded_options(dict)
-
   vars_coded <- dict$variable_name[dict$type %in% "Coded list"]
 
-  out_check_coded <- data %>%
-    select(any_of(vars_coded)) %>%
-    mutate(across(everything(), as.character)) %>%
-    pivot_longer(cols = everything(), names_to = "variable_name") %>%
-    anti_join(dict_coded, by = c("variable_name", "value" = format_coded)) %>%
-    filter(!is.na(.data$value)) %>%
-    unique()
+  if (length(vars_coded) > 0) {
+    out_check_coded <- data %>%
+      select(any_of(vars_coded)) %>%
+      mutate(across(everything(), as.character)) %>%
+      pivot_longer(cols = everything(), names_to = "variable_name") %>%
+      anti_join(dict_coded, by = c("variable_name", "value" = format_coded)) %>%
+      filter(!is.na(.data$value)) %>%
+      unique()
+  } else {
+    out_check_coded <- NULL
+  }
 
   checks[["coded"]] <- is.null(out_check_coded) || nrow(out_check_coded) == 0L
 

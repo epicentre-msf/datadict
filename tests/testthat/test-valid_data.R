@@ -8,8 +8,8 @@ test_that("valid_data works as expected", {
   dict$indirect_identifier <- rep("no", nrow(dict))
 
   # generate data dictionary template from dataset
-  dat1 <- dat2 <- dat3 <- dat4 <- dat5 <- dat6 <- dat
-  dict1 <- dict2 <- dict3 <- dict4 <- dict5 <- dict6 <- dict
+  dat1 <- dat2 <- dat3 <- dat4 <- dat5 <- dat6 <- dat7 <- dat
+  dict1 <- dict2 <- dict3 <- dict4 <- dict5 <- dict6 <- dict7 <- dict
 
   # returns TRUE when valid
   expect_true(valid_data(dat, dict))
@@ -57,6 +57,11 @@ test_that("valid_data works as expected", {
 
   expect_false(valid_data(dat6, dict6, verbose = FALSE))
   expect_warning(valid_data(dat6, dict6, verbose = TRUE))
+
+  # test with no vars of type coded list
+  dict7 <- dict7[!dict7$type %in% "Coded list", ]
+  dat7 <- dat7[, dict7$variable_name]
+  expect_true(valid_data(dat7, dict7))
 
 })
 
